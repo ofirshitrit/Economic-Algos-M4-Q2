@@ -11,16 +11,7 @@ The idea:
 3. From all the last States , we choose the State with the max min value 
 
 """
-
-
-class State:
-    def __init__(self, number_of_objects, valuation_of_player1, valuation_of_player2):
-        self.number_of_objects = number_of_objects
-        self.valuation_of_player1 = valuation_of_player1
-        self.valuation_of_player2 = valuation_of_player2
-
-    def __str__(self):
-        return f"({self.number_of_objects}; {self.valuation_of_player1}, {self.valuation_of_player2})"
+from State import State
 
 
 def add_new_states(current_states):
@@ -37,7 +28,7 @@ def add_new_states(current_states):
     return new_states
 
 
-def egalitarian_allocation(valuations: list[list[float]]):
+def get_states(valuations: list[list[float]]):
     number_of_objects = len(valuations[0])
     initial_state = State(0, 0, 0)
     print(f"Initial State: {initial_state.__str__()}")
@@ -51,8 +42,12 @@ def egalitarian_allocation(valuations: list[list[float]]):
         for i, state in enumerate(new_states):
             print(f"State {i}: {state.__str__()}, Sum is: {state.valuation_of_player1 + state.valuation_of_player2}")
         current_states = new_states
+    return current_states
 
-    max_min_value_state = max(current_states,
+
+def egalitarian_allocation(valuations: list[list[float]]):
+    states = get_states(valuations)
+    max_min_value_state = max(states,
                               key=lambda state: min(state.valuation_of_player1, state.valuation_of_player2))
     return max_min_value_state
 
