@@ -36,6 +36,7 @@ def add_new_states(current_states):
         new_states.extend([new_state_for_player1, new_state_for_player2])
     return new_states
 
+
 def egalitarian_allocation(valuations: list[list[float]]):
     number_of_objects = len(valuations[0])
     initial_state = State(0, 0, 0)
@@ -58,10 +59,11 @@ def egalitarian_allocation(valuations: list[list[float]]):
 
 if __name__ == '__main__':
     # valuations = [[4, 5, 6, 7, 8], [8, 7, 6, 5, 4]]
-    valuations = [[4, 5, 6], [6, 5, 4]]
+    # valuations = [[4, 5, 6], [6, 5, 4]]
     # valuations = [[11, 55], [33, 44]]
     # valuations = [[11, 55, 66], [33, 44, 22]]
     # valuations = [[11, 66], [44, 22]]
+    valuations = [[11, 22, 33, 44], [22, 11, 44, 33]]
 
     result_state = egalitarian_allocation(valuations)
     print(f"Egalitarian Allocation: {result_state}")
