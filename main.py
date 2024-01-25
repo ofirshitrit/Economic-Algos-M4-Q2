@@ -13,7 +13,58 @@ The idea:
 """
 
 from State import State
-from StatesTree import StatesTree
+
+
+def find_path(root, target_state, current_path=None):
+    if current_path is None:
+        current_path = []
+
+    if root is None:
+        return None
+
+    current_path = current_path + [root]  # Create a new list for each call
+
+    if root.isEqual(target_state):
+        return current_path
+
+    left_path = find_path(root.left, target_state, current_path.copy())
+    right_path = find_path(root.right, target_state, current_path.copy())
+
+    return left_path or right_path
+
+
+def print_path(path):
+    if path:
+        print("\nPath to leaf:")
+        for state in path:
+            print(state)
+
+
+def create_results(path):
+    results = {0: [], 1: []}
+    for (state, next_state) in zip(path, path[1:]):
+        if state.valuation_of_player1 != next_state.valuation_of_player1:
+            results[0].append(state.number_of_objects)
+        elif state.valuation_of_player2 != next_state.valuation_of_player2:
+            results[1].append(state.number_of_objects)
+    else:
+        print("Target state not found in the tree.")
+
+    print("\nResults: ", results)
+    return results
+
+
+def print_outputs(results, valuations):
+    total_value = 0
+
+    for player in results:
+        objects = ', '.join(map(str, results[player]))
+        for object in results[player]:
+            value = valuations[player][object]
+            total_value += value
+        print(f"player {player} gets items {objects} with values {total_value}")
+        total_value = 0
+
 
 
 def add_new_states(current_states):
@@ -32,7 +83,7 @@ def add_new_states(current_states):
     return new_states
 
 
-def get_states(valuations: list[list[float]],initial_state):
+def get_states(valuations: list[list[float]], initial_state):
     number_of_objects = len(valuations[0])
 
     print(f"Initial State: {initial_state.__str__()}")
@@ -47,32 +98,31 @@ def get_states(valuations: list[list[float]],initial_state):
         for i, state in enumerate(new_states):
             print(f"State {i}: {state.__str__()}, Sum is: {state.valuation_of_player1 + state.valuation_of_player2}")
         current_states = new_states
-    print("The tree: \n")
-    # initial_state.print_tree()
 
     return current_states
 
 
-# TODO: change the output to be player i gets items ** with values **
+
 def egalitarian_allocation(valuations: list[list[float]]):
     initial_state = State(0, 0, 0)
     states = get_states(valuations, initial_state)
     final_state = max(states,
-                              key=lambda state: min(state.valuation_of_player1, state.valuation_of_player2))
-
-    final_state.print_path(final_state.find_path(initial_state))
+                      key=lambda state: min(state.valuation_of_player1, state.valuation_of_player2))
+    path = find_path(initial_state, final_state)
+    print_path(path)
+    results = create_results(path)
+    print_outputs(results, valuations)
     return final_state
 
 
 if __name__ == '__main__':
     # valuations = [[4, 5, 6, 7, 8], [8, 7, 6, 5, 4]]
     # valuations = [[4, 5, 6], [6, 5, 4]]
-    valuations = [[11, 55], [33, 44]]
+    # valuations = [[11, 55], [33, 44]]
     # valuations = [[11, 55, 66], [33, 44, 22]]
     # valuations = [[11, 66], [44, 22]]
-    # valuations = [[11, 22, 33, 44], [22, 11, 44, 33]]
-
+    valuations = [[11, 22, 33, 44], [22, 11, 44, 33]]
+    # results = {0: [1], 1: [0]}
+    # print_outputs(results, valuations)
     result_state = egalitarian_allocation(valuations)
-    print(f"Egalitarian Allocation: {result_state}")
-
-
+    print(f"\nEgalitarian Allocation: {result_state}")
