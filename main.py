@@ -11,7 +11,9 @@ The idea:
 3. From all the last States , we choose the State with the max min value 
 
 """
+
 from State import State
+from StatesTree import StatesTree
 
 
 def add_new_states(current_states):
@@ -24,14 +26,17 @@ def add_new_states(current_states):
         new_state_for_player2 = State(state.number_of_objects + 1, state.valuation_of_player1,
                                       state.valuation_of_player2 + valuations[1][state.number_of_objects])
 
+        state.left = new_state_for_player1
+        state.right = new_state_for_player2
         new_states.extend([new_state_for_player1, new_state_for_player2])
     return new_states
 
 
-def get_states(valuations: list[list[float]]):
+def get_states(valuations: list[list[float]],initial_state):
     number_of_objects = len(valuations[0])
-    initial_state = State(0, 0, 0)
+
     print(f"Initial State: {initial_state.__str__()}")
+
     current_states = [initial_state]
 
     for i in range(number_of_objects):
@@ -42,23 +47,32 @@ def get_states(valuations: list[list[float]]):
         for i, state in enumerate(new_states):
             print(f"State {i}: {state.__str__()}, Sum is: {state.valuation_of_player1 + state.valuation_of_player2}")
         current_states = new_states
+    print("The tree: \n")
+    # initial_state.print_tree()
+
     return current_states
 
 
+# TODO: change the output to be player i gets items ** with values **
 def egalitarian_allocation(valuations: list[list[float]]):
-    states = get_states(valuations)
-    max_min_value_state = max(states,
+    initial_state = State(0, 0, 0)
+    states = get_states(valuations, initial_state)
+    final_state = max(states,
                               key=lambda state: min(state.valuation_of_player1, state.valuation_of_player2))
-    return max_min_value_state
+
+    final_state.print_path(final_state.find_path(initial_state))
+    return final_state
 
 
 if __name__ == '__main__':
     # valuations = [[4, 5, 6, 7, 8], [8, 7, 6, 5, 4]]
     # valuations = [[4, 5, 6], [6, 5, 4]]
-    # valuations = [[11, 55], [33, 44]]
+    valuations = [[11, 55], [33, 44]]
     # valuations = [[11, 55, 66], [33, 44, 22]]
     # valuations = [[11, 66], [44, 22]]
-    valuations = [[11, 22, 33, 44], [22, 11, 44, 33]]
+    # valuations = [[11, 22, 33, 44], [22, 11, 44, 33]]
 
     result_state = egalitarian_allocation(valuations)
     print(f"Egalitarian Allocation: {result_state}")
+
+
