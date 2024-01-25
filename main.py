@@ -22,7 +22,7 @@ def find_path(root, target_state, current_path=None):
     if root is None:
         return None
 
-    current_path = current_path + [root]  # Create a new list for each call
+    current_path = current_path + [root]
 
     if root.isEqual(target_state):
         return current_path
@@ -44,8 +44,10 @@ def create_results(path):
     results = {0: [], 1: []}
     for (state, next_state) in zip(path, path[1:]):
         if state.valuation_of_player1 != next_state.valuation_of_player1:
+            # player 0 take the current object
             results[0].append(state.number_of_objects)
         elif state.valuation_of_player2 != next_state.valuation_of_player2:
+            # player 1 take the current object
             results[1].append(state.number_of_objects)
     else:
         print("Target state not found in the tree.")
@@ -54,17 +56,16 @@ def create_results(path):
     return results
 
 
-def print_outputs(results, valuations):
+def print_results(results, valuations):
     total_value = 0
 
     for player in results:
-        objects = ', '.join(map(str, results[player]))
+        objects = ', '.join(map(str, results[player]))  # print the list without the [ ]
         for object in results[player]:
             value = valuations[player][object]
             total_value += value
         print(f"player {player} gets items {objects} with values {total_value}")
         total_value = 0
-
 
 
 def add_new_states(current_states):
@@ -102,7 +103,6 @@ def get_states(valuations: list[list[float]], initial_state):
     return current_states
 
 
-
 def egalitarian_allocation(valuations: list[list[float]]):
     initial_state = State(0, 0, 0)
     states = get_states(valuations, initial_state)
@@ -111,7 +111,7 @@ def egalitarian_allocation(valuations: list[list[float]]):
     path = find_path(initial_state, final_state)
     print_path(path)
     results = create_results(path)
-    print_outputs(results, valuations)
+    print_results(results, valuations)
     return final_state
 
 
