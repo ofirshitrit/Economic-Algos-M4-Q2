@@ -43,10 +43,10 @@ def print_path(path):
 def create_results(path):
     results = {0: [], 1: []}
     for (state, next_state) in zip(path, path[1:]):
-        if state.valuation_of_player1 != next_state.valuation_of_player1:
+        if state.valuation_of_player0 != next_state.valuation_of_player0:
             # player 0 take the current object
             results[0].append(state.number_of_objects)
-        elif state.valuation_of_player2 != next_state.valuation_of_player2:
+        elif state.valuation_of_player1 != next_state.valuation_of_player1:
             # player 1 take the current object
             results[1].append(state.number_of_objects)
     else:
@@ -71,16 +71,16 @@ def print_results(results, valuations):
 def add_new_states(current_states):
     new_states = []
     for state in current_states:
-        # For every new state - nether player1 gets the object or player2 gets the object
-        new_state_for_player1 = State(state.number_of_objects + 1,
-                                      state.valuation_of_player1 + valuations[0][state.number_of_objects],
-                                      state.valuation_of_player2)
-        new_state_for_player2 = State(state.number_of_objects + 1, state.valuation_of_player1,
-                                      state.valuation_of_player2 + valuations[1][state.number_of_objects])
+        # For every new state - nether player 0 gets the object or player 1 gets the object
+        new_state_for_player0 = State(state.number_of_objects + 1,
+                                      state.valuation_of_player0 + valuations[0][state.number_of_objects],
+                                      state.valuation_of_player1)
+        new_state_for_player1 = State(state.number_of_objects + 1, state.valuation_of_player0,
+                                      state.valuation_of_player1 + valuations[1][state.number_of_objects])
 
-        state.left = new_state_for_player1
-        state.right = new_state_for_player2
-        new_states.extend([new_state_for_player1, new_state_for_player2])
+        state.left = new_state_for_player0
+        state.right = new_state_for_player1
+        new_states.extend([new_state_for_player0, new_state_for_player1])
     return new_states
 
 
@@ -97,7 +97,7 @@ def get_states(valuations: list[list[float]], initial_state):
 
         print("The new states: ")
         for i, state in enumerate(new_states):
-            print(f"State {i}: {state.__str__()}, Sum is: {state.valuation_of_player1 + state.valuation_of_player2}")
+            print(f"State {i}: {state.__str__()}, Sum is: {state.valuation_of_player0 + state.valuation_of_player1}")
         current_states = new_states
 
     return current_states
@@ -107,7 +107,7 @@ def egalitarian_allocation(valuations: list[list[float]]):
     initial_state = State(0, 0, 0)
     states = get_states(valuations, initial_state)
     final_state = max(states,
-                      key=lambda state: min(state.valuation_of_player1, state.valuation_of_player2))
+                      key=lambda state: min(state.valuation_of_player0, state.valuation_of_player1))
     path = find_path(initial_state, final_state)
     print_path(path)
     results = create_results(path)
