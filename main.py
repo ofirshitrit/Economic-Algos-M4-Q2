@@ -11,8 +11,20 @@ The idea:
 3. From all the last States , we choose the State with the max min value 
 
 """
-
+import sys
+import time
 from State import State
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, stream=sys.stdout, format='%(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+logger = logging.getLogger(__name__)
+
+# Comment this line to see prints of the logger
+logger.setLevel(logging.WARNING)
+
+
+running_time_without_rules = []
 
 
 def find_path(root, target_state, current_path=None):
@@ -35,9 +47,9 @@ def find_path(root, target_state, current_path=None):
 
 def print_path(path):
     if path:
-        print("\nPath to leaf:")
+        logger.info("\nPath to leaf:")
         for state in path:
-            print(state)
+            logger.info(state)
 
 
 def create_results(path):
@@ -49,7 +61,7 @@ def create_results(path):
         elif state.valuation_of_player1 != next_state.valuation_of_player1:
             # player 1 take the current object
             results[1].append(state.number_of_objects)
-    print("\nResults: ", results)
+    logger.info("\nResults: ", results)
     return results
 
 
@@ -57,6 +69,7 @@ def print_player_results(player, results, final_state):
     objects = ', '.join(map(str, results[player]))
     total_value = getattr(final_state, f'valuation_of_player{player}')
     print(f"player {player} gets items {objects} with values {total_value}")
+
 
 def print_results(results, valuations, final_state):
     print_player_results(0, results, final_state)
@@ -84,31 +97,36 @@ def add_new_states(current_states, valuations):
 def get_states(valuations: list[list[float]], initial_state):
     number_of_objects = len(valuations[0])
 
-    print(f"Initial State: {initial_state.__str__()}")
+    logger.info(f"Initial State: {initial_state.__str__()}")
 
     current_states = [initial_state]
 
     for i in range(number_of_objects):
-        print(f"\nObject {i}: ")
+        logger.info(f"\nObject {i}: ")
         new_states = add_new_states(current_states, valuations)
 
-        print("The new states: ")
+        logger.info("The new states: ")
         for i, state in enumerate(new_states):
-            print(f"State {i}: {state.__str__()}, Sum is: {state.valuation_of_player0 + state.valuation_of_player1}")
+            logger.info(f"State {i}: {state.__str__()}, Sum is: {state.valuation_of_player0 + state.valuation_of_player1}")
         current_states = new_states
 
     return current_states
 
 
 def egalitarian_allocation(valuations: list[list[float]]):
+    start_time = time.time()
     initial_state = State(0, 0, 0)
     states = get_states(valuations, initial_state)
     final_state = max(states,
                       key=lambda state: min(state.valuation_of_player0, state.valuation_of_player1))
+
     path = find_path(initial_state, final_state)
     print_path(path)
     results = create_results(path)
     print_results(results, valuations, final_state)
+    end_time = time.time()
+    running_time = end_time - start_time
+    running_time_without_rules.append(running_time)
     return final_state
 
 
@@ -134,7 +152,7 @@ if __name__ == '__main__':
     # results = {0: [1], 1: [0]}
     # print_outputs(results, valuations)
     result_state = egalitarian_allocation(valuations)
-    print(f"\nEgalitarian Allocation: {result_state}")
+    # print(f"\nEgalitarian Allocation: {result_state}")
 
     # result_state1 = max_product_allocation(valuations)
     # print(f"\nmax_product_allocation: {result_state1}")

@@ -1,7 +1,10 @@
 import random
 
-from State import State
-from main import get_states, add_new_states
+from main import *
+
+running_time_rule1 = []
+running_time_rule2 = []
+running_time_both_rules = []
 
 
 # To improve the running time we use rules of "pruning"
@@ -22,14 +25,22 @@ def pruning_rule1(states):
     states.extend(new_states)
 
 
-
 def egalitarian_allocation_rule1(valuations: list[list[float]]):
+    start_time = time.time()
     initial_state = State(0, 0, 0)
     states = get_states(valuations, initial_state)
     pruning_rule1(states)
-    max_min_value_state = max(states,
-                              key=lambda state: min(state.valuation_of_player0, state.valuation_of_player1))
-    return max_min_value_state
+    final_state = max(states,
+                      key=lambda state: min(state.valuation_of_player0, state.valuation_of_player1))
+    path = find_path(initial_state, final_state)
+    print_path(path)
+    results = create_results(path)
+    print_results(results, valuations, final_state)
+
+    end_time = time.time()
+    running_time = end_time - start_time
+    running_time_rule1.append(running_time)
+    return final_state
 
 
 # Rule 2: delete every state where the optimistic bound is no better than the pessimistic bound
@@ -83,12 +94,40 @@ def pruning_rule2(states, total_objects, valuations):
 
 
 def egalitarian_allocation_rule2(valuations: list[list[float]]):
+    start_time = time.time()
     initial_state = State(0, 0, 0)
     states = get_states(valuations, initial_state)
     pruning_rule2(states, len(valuations[0]), valuations)
-    max_min_value_state = max(states,
-                              key=lambda state: min(state.valuation_of_player0, state.valuation_of_player1))
-    return max_min_value_state
+    final_state = max(states,
+                      key=lambda state: min(state.valuation_of_player0, state.valuation_of_player1))
+    path = find_path(initial_state, final_state)
+    print_path(path)
+    results = create_results(path)
+    print_results(results, valuations, final_state)
+    end_time = time.time()
+    running_time = end_time - start_time
+    running_time_rule2.append(running_time)
+
+    return final_state
+
+
+def egalitarian_allocation_both_rules(valuations: list[list[float]]):
+    start_time = time.time()
+    initial_state = State(0, 0, 0)
+    states = get_states(valuations, initial_state)
+    pruning_rule1(states)
+    pruning_rule2(states, len(valuations[0]), valuations)
+    final_state = max(states,
+                      key=lambda state: min(state.valuation_of_player0, state.valuation_of_player1))
+    path = find_path(initial_state, final_state)
+    print_path(path)
+    results = create_results(path)
+    print_results(results, valuations, final_state)
+    end_time = time.time()
+    running_time = end_time - start_time
+    running_time_both_rules.append(running_time)
+
+    return final_state
 
 
 if __name__ == '__main__':
